@@ -3,6 +3,13 @@ name = "where39"
 version = "0.1.0"
 authors = ["Sebastian Geisler <sgeisler@wh2.tu-dresden.de>"]
 edition = "2018"
+license = "MIT"
+documentation = "https://docs.rs/where39"
+repository = "https://github.com/sgeisler/rust-where39"
+keywords = ["geo", "location", "encoding", "bip39"]
+categories = ["algorithms", "encoding", "no-std"]
+readme="README.md"
+description = "rust implementation of the where39 geo location encoding standard"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

@@ -1,11 +1,9 @@
 #![no_std]
 
-extern crate core;
 extern crate libm;
 
 mod wordlist;
 
-use core::convert::TryInto;
 use libm::F64Ext;
 use wordlist::WORDLIST;
 
@@ -20,6 +18,18 @@ fn get_word_idx<'a>(word: &'a str) -> Result<usize, Error<'a>> {
         .ok_or(Error::InvalidWord(word))
 }
 
+/// Decode words supplied as iterator over string slices.
+///
+/// # Example:
+/// ```
+/// use where39::from_words;
+///
+/// let words = &["slush", "battle", "damage", "dentist"][..];
+///
+/// let (lat, lng) = from_words(words.iter()).unwrap();
+/// assert_eq!(lat, 51.02561728383f64);
+/// assert_eq!(lng, 13.72333333297f64);
+/// ```
 pub fn from_words<'a, I, S>(words: I) -> Result<(f64, f64), Error<'a>>
 where I: Iterator<Item=&'a S> + ExactSizeIterator,
       S: AsRef<str> + 'a + ?Sized
@@ -55,7 +65,18 @@ where I: Iterator<Item=&'a S> + ExactSizeIterator,
     Ok((lat, lng))
 }
 
-fn to_words(lat: f64, lng: f64) -> Result<[&'static str; 5], Error<'static>> {
+/// Encode coordinates represented as a latitude (in range -90..=+90) and a longitude (in range
+/// -180..=+180) to five words. You may shorten the array to four elements according to the original
+/// implementation.
+///
+/// ```
+/// use where39::to_words;
+///
+/// let code = to_words(51.02561728383f64, 13.72333333297f64).unwrap();
+/// let expected = &["slush", "battle", "damage", "dentist"][..];
+/// assert_eq!(expected, &code[..4]);
+/// ```
+pub fn to_words(lat: f64, lng: f64) -> Result<[&'static str; 5], Error<'static>> {
     if (-90f64..=90f64).contains(&lat) == false || (-180f64..=180f64).contains(&lng) == false {
         return Err(Error::CoordinatesOutOfRange)
     }
@@ -88,8 +109,6 @@ pub enum Error<'a> {
 
 #[cfg(test)]
 mod tests {
-    use crate::to_words;
-
     #[test]
     fn test_words_to_coords() {
         let words = &["slush", "battle", "damage", "dentist"][..];
@@ -101,7 +120,7 @@ mod tests {
 
     #[test]
     fn test_coords_to_words() {
-        let code = to_words(51.02561728383f64, 13.72333333297f64).unwrap();
+        let code = super::to_words(51.02561728383f64, 13.72333333297f64).unwrap();
         let expected = &["slush", "battle", "damage", "dentist"][..];
 
         assert_eq!(expected, &code[..4]);
