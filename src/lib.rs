@@ -1,8 +1,7 @@
-extern crate geo;
+#![no_std]
 
 mod wordlist;
 
-use geo::Point;
 use wordlist::WORDLIST;
 
 const TILES_SIZES: &[f64] = &[5.625, 0.125, 0.00277777777, 0.00006172839, 0.00000308642];
@@ -16,7 +15,7 @@ fn get_word_idx<'a>(word: &'a str) -> Result<usize, Error<'a>> {
         .ok_or(Error::InvalidWord(word))
 }
 
-pub fn from_words<'a, I, S>(words: I) -> Result<Point<f64>, Error<'a>>
+pub fn from_words<'a, I, S>(words: I) -> Result<(f64, f64), Error<'a>>
 where I: Iterator<Item=&'a S> + ExactSizeIterator,
       S: AsRef<str> + 'a + ?Sized
 {
@@ -24,7 +23,7 @@ where I: Iterator<Item=&'a S> + ExactSizeIterator,
         return Err(Error::TooManyWords(words.len()))
     }
 
-    let (lat, long) = words.enumerate()
+    let (lat, lng) = words.enumerate()
         .map(|(idx, word)| {
             let word_idx_limit = RASTER_SIZE[idx].0 * RASTER_SIZE[idx].1;
             let word_idx = get_word_idx(word.as_ref())?;
@@ -48,7 +47,7 @@ where I: Iterator<Item=&'a S> + ExactSizeIterator,
             }
         })?;
 
-    Ok(Point::new(lat, long))
+    Ok((lat, lng))
 }
 
 #[derive(Debug)]
@@ -61,10 +60,10 @@ pub enum Error<'a> {
 mod tests {
     #[test]
     fn test_words_to_coords() {
-        let words = vec!["slush", "battle", "damage", "dentist"];
+        let words = &["slush", "battle", "damage", "dentist"][..];
 
-        let coords = super::from_words(words.iter()).unwrap();
-        assert_eq!(coords.y(), 13.72333333297f64);
-        assert_eq!(coords.x(), 51.02561728383f64);
+        let (lat, lng) = super::from_words(words.iter()).unwrap();
+        assert_eq!(lat, 51.02561728383f64);
+        assert_eq!(lng, 13.72333333297f64);
     }
 }
