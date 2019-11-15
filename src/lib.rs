@@ -69,6 +69,7 @@ where I: Iterator<Item=&'a S> + ExactSizeIterator,
 /// -180..=+180) to five words. You may shorten the array to four elements according to the original
 /// implementation.
 ///
+/// # Example:
 /// ```
 /// use where39::to_words;
 ///
